@@ -60,13 +60,13 @@ class MyRobot(HamBot):
         self.stop_motors()
 
     def go_forward(self, speed=50):
-        """Drive forward (left motor negated for hardware wiring)."""
-        self.set_left_motor_speed(-self.velocity_saturation(speed))
+        """Drive forward."""
+        self.set_left_motor_speed(self.velocity_saturation(speed))
         self.set_right_motor_speed(self.velocity_saturation(speed))
 
     def move_forward(self, speed=50, duration=1.0):
         """Drive straight for *duration* seconds."""
-        self.set_left_motor_speed(-speed)
+        self.set_left_motor_speed(speed)
         self.set_right_motor_speed(speed)
         time.sleep(duration)
         self.stop_motors()
@@ -157,7 +157,6 @@ if __name__ == "__main__":
     robot = MyRobot(lidar_enabled=False, camera_enabled=False)
 
     try:
-        print("Heading:", robot.get_compass_reading(), "°")
 
         # Drive forward for 2 seconds
         print("Moving forward...")
