@@ -98,8 +98,8 @@ class MyRobot(HamBot):
 
             # Both wheels spin the same direction for in-place rotation
             if angle_diff > 0:
-                self.set_left_motor_speed(speed)
-                self.set_right_motor_speed(speed)
+                self.set_left_motor_speed(speed)   
+                self.set_right_motor_speed(speed) 
             else:
                 self.set_left_motor_speed(-speed)
                 self.set_right_motor_speed(-speed)
@@ -156,33 +156,13 @@ if __name__ == "__main__":
     robot = MyRobot(lidar_enabled=False, camera_enabled=False)
 
     try:
-        print("Heading:", robot.get_compass_reading(), "°")
+        print("Spinning in place... (Ctrl+C to stop)")
+        robot.set_left_motor_speed(-30)
+        robot.set_right_motor_speed(30)
 
-        # Drive forward for 2 seconds
-        print("Moving forward...")
-        robot.move_forward(speed=50, duration=2.0)
-        robot.wait(0.5)
-
-        # Turn 90° to the right
-        print("Turning 90° right...")
-        robot.turn(-90)
-        robot.wait(0.5)
-
-        # Drive forward again
-        print("Moving forward...")
-        robot.move_forward(speed=50, duration=2.0)
-        robot.wait(0.5)
-
-        # Turn 90° to the left
-        print("Turning 90° left...")
-        robot.turn(90)
-        robot.wait(0.5)
-
-        # Drive forward 0.5 meters
-        print("Moving 0.5 m forward...")
-        robot.move_distance(0.5)
-
-        print("Done! Final heading:", robot.get_compass_reading(), "°")
+        while True:
+            print("Heading:", robot.get_compass_reading(), "°")
+            time.sleep(0.5)
 
     except KeyboardInterrupt:
         print("\nInterrupted by user.")
