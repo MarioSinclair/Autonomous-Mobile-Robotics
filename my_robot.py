@@ -77,7 +77,7 @@ class MyRobot(HamBot):
         time_needed = distance / linear_velocity  # seconds
         self.move_forward(speed, time_needed)
 
-    def turn(self, degrees, speed=30, tolerance=0.1):
+    def turn(self, degrees, speed=20, tolerance=0.1):
         """Turn in-place by *degrees* using the IMU for feedback."""
         current_angle = self.get_compass_reading()
         target_angle = (current_angle + degrees) % 360
@@ -96,12 +96,13 @@ class MyRobot(HamBot):
                 self.stop_motors()
                 break
 
-            # Both wheels spin the same direction for in-place rotation
-            if angle_diff > 0:
-                self.set_left_motor_speed(speed)   
-                self.set_right_motor_speed(speed) 
-            else:
+            # (-speed, +speed) = spin left (CCW, heading increases)
+            # (+speed, -speed) = spin right (CW, heading decreases)
+            if angle_diff > 0:          # need to increase heading → spin left
                 self.set_left_motor_speed(-speed)
+                self.set_right_motor_speed(speed)
+            else:                       # need to decrease heading → spin right
+                self.set_left_motor_speed(speed)
                 self.set_right_motor_speed(-speed)
 
             time.sleep(0.01)
@@ -156,13 +157,35 @@ if __name__ == "__main__":
     robot = MyRobot(lidar_enabled=False, camera_enabled=False)
 
     try:
-        print("Spinning in place... (Ctrl+C to stop)")
-        robot.set_left_motor_speed(-30)
-        robot.set_right_motor_speed(30)
+        print("Heading:", robot.get_compass_reading(), "°")
 
-        while True:
-            print("Heading:", robot.get_compass_reading(), "°")
-            time.sleep(0.5)
+        # Drive forward for 2 seconds
+        print("Moving forward...")
+        robot.move_forward(speed=25, duration=2.0)
+        robot.wait(0.5)
+
+        # Turn 90° to the right
+        print("Turning 90° right...")
+        robot.turn(-90)
+        print("Heading after right turn:", robot.get_compass_reading(), "°")
+        robot.wait(0.5)
+
+        # Drive forward again
+        print("Moving forward...")
+        robot.move_forward(speed=25, duration=2.0)
+        robot.wait(0.5)
+
+        # Turn 90° to the left
+        print("Turning 90° left...")
+        robot.turn(90)
+        print("Heading after left turn:", robot.get_compass_reading(), "°")
+        robot.wait(0.5)
+
+        # Drive forward 0.5 meters
+        print("Moving 0.5 m forward...")
+        robot.move_distance(0.5)
+
+        print("Done! Final heading:", robot.get_compass_reading(), "°")
 
     except KeyboardInterrupt:
         print("\nInterrupted by user.")
