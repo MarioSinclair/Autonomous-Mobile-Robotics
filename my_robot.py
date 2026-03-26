@@ -113,8 +113,6 @@ class MyRobot(HamBot):
             if front_distance < 0:
                 self.set_left_motor_velocity(max_velocity)
                 self.set_right_motor_velocity(max_velocity)
-                if self.experiment_supervisor.step(self.timestep) == -1:
-                    break
                 continue
 
             error = front_distance - stop_distance
