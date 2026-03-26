@@ -133,6 +133,60 @@ class MyRobot(HamBot):
 
         self.stop()
 
+    def wall_follow(self, direction='left', setpoint=300, max_velocity=50,
+                    Kp_dist=0.1, Kp_angle=0.2, Kp_fwd=0.1, stop_distance=500):
+        if direction == 'left':
+            front_side_idx = 120
+            rear_side_idx = 60
+        else:
+            front_side_idx = 240
+            rear_side_idx = 300
+
+        while True:
+            lidar_data = self.get_lidar_range_image()
+
+            front_distance = lidar_data[180]
+
+            if 0 < front_distance <= stop_distance:
+                turn_speed = 30
+                if direction == 'left':
+                    self.set_left_motor_velocity(turn_speed)
+                    self.set_right_motor_velocity(-turn_speed)
+                else:
+                    self.set_left_motor_velocity(-turn_speed)
+                    self.set_right_motor_velocity(turn_speed)
+                continue
+
+            base_vel = Kp_fwd * (front_distance - stop_distance)
+            base_vel = max(10.0, min(base_vel, max_velocity))
+
+            front_side = lidar_data[front_side_idx]
+            rear_side = lidar_data[rear_side_idx]
+
+            if front_side < 0 or rear_side < 0:
+                self.set_left_motor_velocity(base_vel)
+                self.set_right_motor_velocity(base_vel)
+                continue
+
+            wall_distance = (front_side + rear_side) / 2.0
+            dist_error = wall_distance - setpoint
+            angle_error = front_side - rear_side
+
+            delta = Kp_dist * dist_error + Kp_angle * angle_error
+            delta = max(-base_vel, min(delta, base_vel))
+
+            if direction == 'left':
+                left_vel = base_vel - delta
+                right_vel = base_vel + delta
+            else:
+                left_vel = base_vel + delta
+                right_vel = base_vel - delta
+
+            self.set_left_motor_velocity(left_vel)
+            self.set_right_motor_velocity(right_vel)
+
+        self.stop()
+
     def turn(self, degrees, speed=20, tolerance=0.1):
         """Turn in-place by *degrees* using the IMU for feedback."""
         current_angle = self.get_compass_reading()
@@ -219,28 +273,11 @@ if __name__ == "__main__":
         robot.lidar_move_forward()
         robot.wait(0.5)
 
-        # Turn 90° to the right
-        print("Turning 90° right...")
-        robot.turn(-90)
-        print("Heading after right turn:", robot.get_compass_reading(), "°")
-        robot.wait(0.5)
-
-        # Drive forward again
-        print("Moving forward...")
-        robot.move_forward(speed=25, duration=2.0)
-        robot.wait(0.5)
-
-        # Turn 90° to the left
-        print("Turning 90° left...")
-        robot.turn(90)
-        print("Heading after left turn:", robot.get_compass_reading(), "°")
-        robot.wait(0.5)
-
-        # Drive forward 0.5 meters
-        print("Moving 0.5 m forward...")
-        robot.move_distance(0.5)
-
-        print("Done! Final heading:", robot.get_compass_reading(), "°")
+        print("Wall fallowing...")
+        robot.wall_follow(direction='left', setpoint=300, max_velocity=50,
+                            Kp_dist=0.1, Kp_angle=0.1, Kp_fwd=0.1,
+                            stop_distance=500
+                          )
 
     except KeyboardInterrupt:
         print("\nInterrupted by user.")
