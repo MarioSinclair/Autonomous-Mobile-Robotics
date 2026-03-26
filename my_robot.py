@@ -268,11 +268,6 @@ if __name__ == "__main__":
 
     try:
 
-        # Drive forward for 2 seconds
-        print("Moving forward...")
-        robot.lidar_move_forward()
-        robot.wait(0.5)
-
         print("Wall fallowing...")
         robot.wall_follow(direction='left', setpoint=300, max_velocity=50,
                             Kp_dist=0.1, Kp_angle=0.1, Kp_fwd=0.1,
