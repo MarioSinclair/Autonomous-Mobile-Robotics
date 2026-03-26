@@ -102,8 +102,6 @@ class MyRobot(HamBot):
             self.set_left_motor_velocity(velocity)
             self.set_right_motor_velocity(velocity)
 
-            if self.experiment_supervisor.step(self.timestep) == -1:
-                break
         
         self.stop_motors()
         
@@ -132,8 +130,6 @@ class MyRobot(HamBot):
             self.set_left_motor_velocity(velocity)
             self.set_right_motor_velocity(velocity)
 
-            if self.experiment_supervisor.step(self.timestep) == -1:
-                break
 
         self.stop()
 
