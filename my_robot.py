@@ -74,7 +74,7 @@ class MyRobot(HamBot):
         time.sleep(duration)
         self.stop_motors()
 
-    def move_distance(self, distance, speed=100):
+    def move_distance(self, distance, speed=75):
         """Drive forward a specified distance (meters)."""
         linear_velocity = speed * self.wheel_radius
         time_needed = distance / linear_velocity  # seconds
@@ -107,10 +107,17 @@ class MyRobot(HamBot):
         
         self.stop_motors()
         
-    def lidar_move_forward(self, stop_distance=0.3, max_velocity=100, Kp=50.0, tolerance=0.1):
+    def lidar_move_forward(self, stop_distance=0.3, max_velocity=75, Kp=50.0, tolerance=0.1):
         while True:
             lidar_data = self.get_lidar_range_image()
             front_distance = lidar_data[180]
+
+            if front_distance < 0:
+                self.set_left_motor_velocity(max_velocity)
+                self.set_right_motor_velocity(max_velocity)
+                if self.experiment_supervisor.step(self.timestep) == -1:
+                    break
+                continue
 
             error = front_distance - stop_distance
 
