@@ -117,6 +117,8 @@ class MyRobot(HamBot):
 
             error = front_distance - stop_distance
 
+            print(front_distance)
+            
             if error <= tolerance:
                 print("Final front distance:", lidar_data[180])
                 self.stop()
