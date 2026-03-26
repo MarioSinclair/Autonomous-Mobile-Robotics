@@ -270,7 +270,7 @@ if __name__ == "__main__":
     try:
 
         print("Wall fallowing...")
-        robot.wall_follow(direction='right', setpoint=300, max_velocity=40,
+        robot.wall_follow(direction='left', setpoint=300, max_velocity=40,
                             Kp_dist=0.1, Kp_angle=0.1, Kp_fwd=0.1,
                             stop_distance=500
                           )
