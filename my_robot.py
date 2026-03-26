@@ -64,18 +64,71 @@ class MyRobot(HamBot):
         self.set_left_motor_speed(self.velocity_saturation(speed))
         self.set_right_motor_speed(self.velocity_saturation(speed))
 
-    def move_forward(self, speed=50, duration=1.0):
+
+    # Code
+
+    def move_forward(self, speed=100, duration=1.0):
         """Drive straight for *duration* seconds."""
         self.set_left_motor_speed(speed)
         self.set_right_motor_speed(speed)
         time.sleep(duration)
         self.stop_motors()
 
-    def move_distance(self, distance, speed=50):
+    def move_distance(self, distance, speed=100):
         """Drive forward a specified distance (meters)."""
         linear_velocity = speed * self.wheel_radius
         time_needed = distance / linear_velocity  # seconds
         self.move_forward(speed, time_needed)
+
+    def move_encoder(self, distance=1, speed=10, tolerance=0.01, Kp=5.0):
+        start_left = self.get_left_motor_encoder_reading()
+        start_right = self.get_right_motor_encoder_reading()
+
+        while True:
+            left_distance = self.wheel_radius * (self.get_left_motor_encoder_reading() - start_left)
+            right_distance = self.wheel_radius * (self.get_right_motor_encoder_reading() - start_right)
+            avg_distance = (left_distance + right_distance) / 2.0
+
+            error = distance - avg_distance
+
+            if error <= tolerance:
+                print("Forward distance traveled (encoder):", avg_distance)
+                self.stop_motors()
+                break
+
+            velocity = Kp * error
+            velocity = min(velocity, speed)
+
+            self.set_left_motor_velocity(velocity)
+            self.set_right_motor_velocity(velocity)
+
+            if self.experiment_supervisor.step(self.timestep) == -1:
+                break
+        
+        self.stop_motors()
+        
+    def lidar_move_forward(self, stop_distance=0.3, max_velocity=100, Kp=50.0, tolerance=0.1):
+        while True:
+            lidar_data = self.get_lidar_range_image()
+            front_distance = lidar_data[180]
+
+            error = front_distance - stop_distance
+
+            if error <= tolerance:
+                print("Final front distance:", lidar_data[180])
+                self.stop()
+                break
+
+            velocity = Kp * error
+            velocity = min(velocity, max_velocity)
+
+            self.set_left_motor_velocity(velocity)
+            self.set_right_motor_velocity(velocity)
+
+            if self.experiment_supervisor.step(self.timestep) == -1:
+                break
+
+        self.stop()
 
     def turn(self, degrees, speed=20, tolerance=0.1):
         """Turn in-place by *degrees* using the IMU for feedback."""
@@ -160,7 +213,7 @@ if __name__ == "__main__":
 
         # Drive forward for 2 seconds
         print("Moving forward...")
-        robot.move_forward(speed=25, duration=2.0)
+        robot.lidar_move_forward()
         robot.wait(0.5)
 
         # Turn 90° to the right
