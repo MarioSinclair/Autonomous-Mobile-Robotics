@@ -207,7 +207,7 @@ class MyRobot(HamBot):
 
 
 if __name__ == "__main__":
-    robot = MyRobot(lidar_enabled=False, camera_enabled=False)
+    robot = MyRobot(lidar_enabled=True, camera_enabled=True)
 
     try:
 
