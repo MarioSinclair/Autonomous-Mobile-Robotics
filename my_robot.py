@@ -110,7 +110,7 @@ class MyRobot(HamBot):
             lidar_data = self.get_lidar_range_image()
             front_distance = lidar_data[180]
 
-            if front_distance > stop_distance:
+            if front_distance < 0:
                 self.set_left_motor_velocity(max_velocity)
                 self.set_right_motor_velocity(max_velocity)
                 continue
