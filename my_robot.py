@@ -105,12 +105,12 @@ class MyRobot(HamBot):
         
         self.stop_motors()
         
-    def lidar_move_forward(self, stop_distance=0.3, max_velocity=75, Kp=50.0, tolerance=0.1):
+    def lidar_move_forward(self, stop_distance=108, max_velocity=75, Kp=50.0, tolerance=0.1):
         while True:
             lidar_data = self.get_lidar_range_image()
             front_distance = lidar_data[180]
 
-            if front_distance < 0:
+            if front_distance > 120:
                 self.set_left_motor_velocity(max_velocity)
                 self.set_right_motor_velocity(max_velocity)
                 continue
@@ -118,7 +118,7 @@ class MyRobot(HamBot):
             error = front_distance - stop_distance
 
             print(front_distance)
-            
+
             if error <= tolerance:
                 print("Final front distance:", lidar_data[180])
                 self.stop()
