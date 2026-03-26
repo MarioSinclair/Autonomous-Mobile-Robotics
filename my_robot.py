@@ -163,9 +163,17 @@ class MyRobot(HamBot):
             front_side = lidar_data[front_side_idx]
             rear_side = lidar_data[rear_side_idx]
 
-            if front_side < 0 or rear_side < 0:
-                self.set_left_motor_velocity(base_vel)
-                self.set_right_motor_velocity(base_vel)
+            wall_lost = (front_side < 0 or rear_side < 0 or
+                         front_side > setpoint * 3 or rear_side > setpoint * 3)
+
+            if wall_lost:
+                turn_speed = 20
+                if direction == 'left':
+                    self.set_left_motor_velocity(-turn_speed)
+                    self.set_right_motor_velocity(turn_speed)
+                else:
+                    self.set_left_motor_velocity(turn_speed)
+                    self.set_right_motor_velocity(-turn_speed)
                 continue
 
             wall_distance = (front_side + rear_side) / 2.0
