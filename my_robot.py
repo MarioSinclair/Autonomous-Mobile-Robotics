@@ -185,6 +185,7 @@ class MyRobot(HamBot):
             self.set_left_motor_velocity(left_vel)
             self.set_right_motor_velocity(right_vel)
 
+            print(base_vel)
         self.stop()
 
     def turn(self, degrees, speed=20, tolerance=0.1):
